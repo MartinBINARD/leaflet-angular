@@ -5,11 +5,13 @@ import {
   Input,
   NgZone,
   OnDestroy,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
 import * as L from 'leaflet';
 import { LatLngExpression } from 'leaflet';
-import { ResetControlBuilder } from '../ResetControllerBuilder';
+import { FAKE_MARKERS_LIST_2 } from 'src/shared/fakeData';
+import { ResetControlBuilder } from './utils/controller/ResetControllerBuilder';
+import { ReviewMarkerManager } from './utils/markers/ReviewMarkerManager';
 
 const DEFAULT_CENTER_COORDINATES: LatLngExpression = [-17.525040113732356, -149.52056762883547];
 const DEFAULT_ZOOM = 14;
@@ -38,17 +40,20 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: false }) mapContainerRef: ElementRef | undefined;
   @Input() coordinates: LatLngExpression = DEFAULT_CENTER_COORDINATES;
   @Input() zoom: number = DEFAULT_ZOOM;
-  @Input() markers: LatLngExpression[] = [DEFAULT_CENTER_COORDINATES];
+  @Input() markers: LatLngExpression[] = FAKE_MARKERS_LIST_2;
 
   private map!: L.Map;
   private control!: L.Control;
+  private markersManager!: ReviewMarkerManager
 
   constructor(private ngZone: NgZone) {}
 
   ngAfterViewInit() {
-    console.log(this.coordinates, this.zoom);
     if (this.coordinates && this.zoom != null) {
       this.initializeMap();
+      this.markersManager = new ReviewMarkerManager(this.map);
+      this.addMarkers(this.markersManager);
+      this.addResetControl(this.markersManager);
       this.subscribeToStableZone();
     } else {
       console.warn('Map not initialized: missing coordinates or zoom.');
@@ -58,6 +63,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy() {
     if (this.map) {
       this.map.remove();
+    }
+
+    if(this.markersManager) {
+      this.markersManager.clearMarkers();
     }
   }
 
@@ -77,8 +86,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       maxZoom: 18,
       minZoom: 3,
     }).addTo(this.map);
-
-    this.addResetControl();
   }
 
   private subscribeToStableZone() {
@@ -87,22 +94,32 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  private addResetControl() {
+  private addMarkers(markersManager: ReviewMarkerManager) {
+    if (!this.map) {
+      console.warn('Cannot add markers: map is not initialized.');
+      return;
+    }
+
+    if (!this.markers || this.markers.length === 0) {
+      console.warn('No markers to display.');
+      return;
+    }
+
+    markersManager.addMarkers(this.markers);
+    markersManager.fitToMarkers();
+  }
+
+  private addResetControl(markersManager: ReviewMarkerManager) {
     if (!this.map) return;
 
     this.control = new ResetControlBuilder()
       .setPosition(CONTROLLERS_POSITION)
       .setContainerClasses(CONTROLLER_CLASS_CONTAINER)
       .setIconClasses(CONTROLLER_CLASS_ICON)
-      .setResetAction(() => this.resetView())
+      .setResetAction(() => markersManager.resetView())
       .build();
 
     this.control.addTo(this.map);
   }
 
-  private resetView() {
-    if (this.map) {
-      this.map.flyTo(this.coordinates, this.zoom, { duration: 1 });
-    }
-  }
 }
