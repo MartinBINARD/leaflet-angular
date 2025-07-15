@@ -1,3 +1,28 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.marker-cluster {
+  background-color: transparent !important;
+  border: none !important;
+}
+
+.marker-cluster div {
+  background-color: #3B82F6 !important;
+  color: white;
+  border-radius: 9999px;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 14px;
+  box-shadow: 0 0 0 2px white;
+  transition: transform 0.2s ease;
+}
+
+/* Hover effect */
+.marker-cluster:hover div {
+  transform: scale(1.1);
+  background-color: #2563EB;
+}

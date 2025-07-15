@@ -1,14 +1,18 @@
 import * as L from "leaflet";
 import { LatLngExpression } from "leaflet";
+import 'leaflet.markercluster';
 
 const FLY_TO_BOUNDS_DURATION_IN_SECONDS = 1;
 
 export abstract class AbstractMarkerManager {
   protected map: L.Map;
+  protected clusterGroup: L.MarkerClusterGroup;
   protected markers: L.Marker[] = [];
 
   constructor(map: L.Map) {
     this.map = map;
+    this.clusterGroup = L.markerClusterGroup();
+    this.map.addLayer(this.clusterGroup);
   }
 
   abstract addMarkers(markers: LatLngExpression[]): void;
@@ -28,7 +32,7 @@ export abstract class AbstractMarkerManager {
   }
 
   clearMarkers(): void {
-    this.markers.forEach(marker => marker.remove());
+    this.clusterGroup.clearLayers();
     this.markers = [];
   }
 }

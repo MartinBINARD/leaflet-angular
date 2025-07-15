@@ -13,6 +13,7 @@ export class ReviewMarkerManager extends AbstractMarkerManager {
 
     coords.forEach(coord => {
       const marker = L.marker(coord).addTo(this.map);
+      this.clusterGroup.addLayer(marker);
       this.markers.push(marker);
     });
   }

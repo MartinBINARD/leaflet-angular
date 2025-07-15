@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import * as L from 'leaflet';
 import { LatLngExpression } from 'leaflet';
-import { FAKE_MARKERS_LIST_2 } from 'src/shared/fakeData';
+import { FAKE_MARKERS_LIST_1, FAKE_MARKERS_LIST_2 } from 'src/shared/fakeData';
 import { ResetControlBuilder } from './utils/controller/ResetControllerBuilder';
 import { ReviewMarkerManager } from './utils/markers/ReviewMarkerManager';
 
@@ -40,7 +40,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: false }) mapContainerRef: ElementRef | undefined;
   @Input() coordinates: LatLngExpression = DEFAULT_CENTER_COORDINATES;
   @Input() zoom: number = DEFAULT_ZOOM;
-  @Input() markers: LatLngExpression[] = FAKE_MARKERS_LIST_2;
+  @Input() markers: LatLngExpression[] = [...FAKE_MARKERS_LIST_1, ...FAKE_MARKERS_LIST_2];
 
   private map!: L.Map;
   private control!: L.Control;

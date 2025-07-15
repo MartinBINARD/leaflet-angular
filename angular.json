@@ -56,7 +56,9 @@
               "node_modules/leaflet/dist/leaflet.css",
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/leaflet.markercluster/dist/leaflet.markercluster.js"
+            ]
           },
           "configurations": {
             "production": {
