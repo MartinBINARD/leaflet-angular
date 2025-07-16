@@ -8,13 +8,10 @@ import {
   ViewChild
 } from '@angular/core';
 import * as L from 'leaflet';
-import { LatLngExpression } from 'leaflet';
-import { FAKE_MARKERS_LIST_1, FAKE_MARKERS_LIST_2 } from 'src/shared/fakeData';
+import { LayerControllerBuilder, MarkerGroup } from './utils/controller/LayerControllerBuilder';
 import { ResetControlBuilder } from './utils/controller/ResetControllerBuilder';
 import { ReviewMarkerManager } from './utils/markers/ReviewMarkerManager';
 
-const DEFAULT_CENTER_COORDINATES: LatLngExpression = [-17.525040113732356, -149.52056762883547];
-const DEFAULT_ZOOM = 14;
 const URL_TEMPLATE = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 const CONTROLLERS_POSITION: L.ControlPosition = 'topright';
 const CONTROLLER_CLASS_CONTAINER: string[] = [
@@ -38,9 +35,7 @@ const CONTROLLER_CLASS_ICON: string[] = ['h-5', 'w-5', 'bg-red-500','text-black-
 })
 export class MapComponent implements AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: false }) mapContainerRef: ElementRef | undefined;
-  @Input() coordinates: LatLngExpression = DEFAULT_CENTER_COORDINATES;
-  @Input() zoom: number = DEFAULT_ZOOM;
-  @Input() markers: LatLngExpression[] = [...FAKE_MARKERS_LIST_1, ...FAKE_MARKERS_LIST_2];
+  @Input() markers!: MarkerGroup[];
 
   private map!: L.Map;
   private control!: L.Control;
@@ -49,14 +44,15 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   constructor(private ngZone: NgZone) {}
 
   ngAfterViewInit() {
-    if (this.coordinates && this.zoom != null) {
+    if (this.markers) {
       this.initializeMap();
       this.markersManager = new ReviewMarkerManager(this.map);
       this.addMarkers();
       this.addResetControl();
+      this.addLayerController();
       this.subscribeToStableZone();
     } else {
-      console.warn('Map not initialized: missing coordinates or zoom.');
+      console.warn('Map not initialized: missing markers.');
     }
   }
 
@@ -77,14 +73,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    this.map = L.map(container, {
-      center: this.coordinates,
-      zoom: this.zoom,
-    });
+    this.map = L.map(container, { attributionControl: false });
 
     L.tileLayer(URL_TEMPLATE, {
       maxZoom: 18,
-      minZoom: 3,
+      minZoom: 10,
     }).addTo(this.map);
   }
 
@@ -120,5 +113,20 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       .build();
 
     this.control.addTo(this.map);
+  }
+
+  private addLayerController() {
+    if (!this.map || !this.markers || this.markers.length === 0) {
+      console.warn('Cannot add layer controller: map or markers are not initialized.');
+      return;
+    }
+
+    const layerController = new LayerControllerBuilder()
+      .setPosition(CONTROLLERS_POSITION)
+      .addMarkerGroups(this.markers)
+      .createLayerGroups()
+      .build();
+
+    layerController.addTo(this.map);
   }
 }

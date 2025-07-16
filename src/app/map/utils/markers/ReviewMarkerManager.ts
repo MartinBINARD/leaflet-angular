@@ -1,9 +1,10 @@
 import * as L from 'leaflet';
 import { LatLngExpression } from 'leaflet';
+import { MarkerGroup } from '../controller/LayerControllerBuilder';
 import { AbstractMarkerManager } from './AbstractMarkerManager';
 
 export class ReviewMarkerManager extends AbstractMarkerManager {
-  addMarkers(coords: LatLngExpression[]): void {
+  addMarkers(markers: MarkerGroup[]): void {
     this.clearMarkers();
 
     if (!this.map) {
@@ -11,10 +12,10 @@ export class ReviewMarkerManager extends AbstractMarkerManager {
       return;
     }
 
-    coords.forEach(coord => {
-      const marker = L.marker(coord);
-      this.clusterGroup.addLayer(marker);
-      this.markers.push(marker);
+    markers.forEach((marker: MarkerGroup) => {
+      const markerElement = L.marker(marker?.coordinates as LatLngExpression);
+      this.clusterGroup.addLayer(markerElement);
+      this.markers.push(markerElement);
     });
   }
 }

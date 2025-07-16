@@ -1,6 +1,6 @@
 import * as L from "leaflet";
-import { LatLngExpression } from "leaflet";
 import 'leaflet.markercluster';
+import { MarkerGroup } from "../controller/LayerControllerBuilder";
 import { AbstractClusterManager } from "./AbstractClusterManager";
 
 export abstract class AbstractMarkerManager extends AbstractClusterManager {
@@ -10,7 +10,7 @@ export abstract class AbstractMarkerManager extends AbstractClusterManager {
     super(map);
   }
 
-  abstract addMarkers(markers: LatLngExpression[]): void;
+  abstract addMarkers(markers: MarkerGroup[]): void;
 
   fitToMarkers(): void {
     if (this.markers.length === 0) return;
