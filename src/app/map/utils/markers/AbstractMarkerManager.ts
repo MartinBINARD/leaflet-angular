@@ -1,18 +1,13 @@
 import * as L from "leaflet";
 import { LatLngExpression } from "leaflet";
 import 'leaflet.markercluster';
+import { AbstractClusterManager } from "./AbstractClusterManager";
 
-const FLY_TO_BOUNDS_DURATION_IN_SECONDS = 1;
-
-export abstract class AbstractMarkerManager {
-  protected map: L.Map;
-  protected clusterGroup: L.MarkerClusterGroup;
+export abstract class AbstractMarkerManager extends AbstractClusterManager {
   protected markers: L.Marker[] = [];
 
   constructor(map: L.Map) {
-    this.map = map;
-    this.clusterGroup = L.markerClusterGroup();
-    this.map.addLayer(this.clusterGroup);
+    super(map);
   }
 
   abstract addMarkers(markers: LatLngExpression[]): void;
@@ -20,19 +15,17 @@ export abstract class AbstractMarkerManager {
   fitToMarkers(): void {
     if (this.markers.length === 0) return;
 
-    const bounds = L.latLngBounds(this.markers.map(marker => marker.getLatLng()));
-    this.map.fitBounds(bounds);
+    this.fitToCluster()
   }
 
-  resetView(): void {
+  flyToMarkers(): void {
     if (this.markers.length === 0) return;
 
-    const bounds = L.latLngBounds(this.markers.map(marker => marker.getLatLng()));
-    this.map.flyToBounds(bounds, { duration: FLY_TO_BOUNDS_DURATION_IN_SECONDS });
+    this.flyToCluster();
   }
 
   clearMarkers(): void {
-    this.clusterGroup.clearLayers();
+    this.clearCluster;
     this.markers = [];
   }
 }

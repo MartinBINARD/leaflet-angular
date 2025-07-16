@@ -11,3 +11,8 @@ export const FAKE_MARKERS_LIST_2: LatLngExpression[] = [
   [-17.543838637739814, -149.57881473910356],
   [-17.54453958738667, -149.5731009760051]
 ]
+
+export const FAKE_CLUSTER_LIST: LatLngExpression[] = [
+  ...FAKE_MARKERS_LIST_1,
+  ...FAKE_MARKERS_LIST_2
+]

@@ -52,8 +52,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     if (this.coordinates && this.zoom != null) {
       this.initializeMap();
       this.markersManager = new ReviewMarkerManager(this.map);
-      this.addMarkers(this.markersManager);
-      this.addResetControl(this.markersManager);
+      this.addMarkers();
+      this.addResetControl();
       this.subscribeToStableZone();
     } else {
       console.warn('Map not initialized: missing coordinates or zoom.');
@@ -94,7 +94,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  private addMarkers(markersManager: ReviewMarkerManager) {
+  private addMarkers() {
     if (!this.map) {
       console.warn('Cannot add markers: map is not initialized.');
       return;
@@ -105,21 +105,20 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    markersManager.addMarkers(this.markers);
-    markersManager.fitToMarkers();
+    this.markersManager.addMarkers(this.markers);
+    this.markersManager.fitToMarkers();
   }
 
-  private addResetControl(markersManager: ReviewMarkerManager) {
+  private addResetControl() {
     if (!this.map) return;
 
     this.control = new ResetControlBuilder()
       .setPosition(CONTROLLERS_POSITION)
       .setContainerClasses(CONTROLLER_CLASS_CONTAINER)
       .setIconClasses(CONTROLLER_CLASS_ICON)
-      .setResetAction(() => markersManager.resetView())
+      .setResetAction(() => this.markersManager.flyToMarkers())
       .build();
 
     this.control.addTo(this.map);
   }
-
 }
